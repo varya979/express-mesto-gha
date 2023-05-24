@@ -1,5 +1,5 @@
 {
-  "name": "react-mesto-gha",
+  "name": "mesto-express",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -13,7 +13,8 @@
   "author": "varya",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "mongoose": "^7.2.0"
   },
   "devDependencies": {
     "eslint": "^8.41.0",
