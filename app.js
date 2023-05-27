@@ -5,8 +5,16 @@
 
 // подключаем экспресс
 const express = require('express');
-// подключаем mongoose
+// подключаемся mongoose
 const mongoose = require('mongoose');
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+const bodyParser = require('body-parser');
+
+const userRouter = require('./routes/users'); // импортируем роутер
+
+// Слушаем 3000 порт
+const { PORT = 3000 } = process.env;
 
 // создаем приложение методом express
 const app = express();
@@ -17,4 +25,12 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-app.listen(3000, () => console.log('привет'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use('/', userRouter); // запускаем
+
+app.listen(PORT, () => {
+// Если всё работает, консоль покажет, какой порт приложение слушает
+  console.log('Подключились к 3000 порту');
+});

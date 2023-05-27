@@ -3,15 +3,15 @@ const mongoose = require('mongoose');
 
 //  задаем схему для карточки через Mongoose
 const cardSchema = new mongoose.Schema({
-  name: { // имя карточки:
-    type: String, // это строка
+  name: {
+    type: String,
     required: true, // это обязательное поле
-    minlength: 2, // минимальная длина — 2 символа
-    maxlength: 30, // а максимальная — 30 символов
+    minlength: 2,
+    maxlength: 30,
   },
   link: { // ссылка на картинку:
-    type: String, // это строка
-    required: true, // это обязательное поле
+    type: String,
+    required: true,
   },
   owner: { // ссылка на модель автора карточки:
     /* Лучшая ссылка из одного документа на другой — идентификатор.

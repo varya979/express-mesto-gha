@@ -4,20 +4,20 @@ const mongoose = require('mongoose');
 //  задаем схему для пользователя через Mongoose
 const userSchema = new mongoose.Schema({
   name: { // имя пользователя:
-    type: String, // это строка
+    type: String,
     required: true, // это обязательное поле
-    minlength: 2, // минимальная длина — 2 символа
-    maxlength: 30, // а максимальная — 30 символов
+    minlength: 2,
+    maxlength: 30,
   },
   about: { // информация о пользователе
-    type: String, // это строка
-    required: true, // это обязательное поле
-    minlength: 2, // минимальная длина — 2 символа
-    maxlength: 30, // а максимальная — 30 символов
+    type: String,
+    required: true,
+    minlength: 2,
+    maxlength: 30,
   },
   avatar: { // аватар
-    type: String, // это строка
-    required: true, // это обязательное поле
+    type: String,
+    required: true,
   },
 });
 
