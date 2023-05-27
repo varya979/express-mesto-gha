@@ -8,7 +8,7 @@ const express = require('express');
 // подключаемся mongoose
 const mongoose = require('mongoose');
 
-// eslint-disable-next-line import/no-extraneous-dependencies
+// импортируем мидлвэр body-parser
 const bodyParser = require('body-parser');
 
 const userRouter = require('./routes/users'); // импортируем роутер
