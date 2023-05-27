@@ -1,19 +1,17 @@
-// подключаем mongoose
 const mongoose = require('mongoose');
 
-//  задаем схему для карточки через Mongoose
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true, // это обязательное поле
+    required: true,
     minlength: 2,
     maxlength: 30,
   },
-  link: { // ссылка на картинку:
+  link: {
     type: String,
     required: true,
   },
-  owner: { // ссылка на модель автора карточки:
+  owner: {
     /* Лучшая ссылка из одного документа на другой — идентификатор.
     Mongo автоматически создаёт поле `_id` — уникальный идентификатор
     для каждого документа. Этот идентификатор позволяет связать один документ с другим.
@@ -30,9 +28,8 @@ const cardSchema = new mongoose.Schema({
   }],
   createdAt: { // дата создания
     type: Date,
-    default: 'Date.now',
+    default: Date.now,
   },
 });
 
-// создаём модель и экспортируем её
 module.exports = mongoose.model('card', cardSchema);

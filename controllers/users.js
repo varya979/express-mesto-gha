@@ -14,6 +14,7 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
+  // получим из объекта запроса имя, описание и аватар
   const { name, about, avatar } = req.body;
   // записываем данные в базу
   User.create({ name, about, avatar })
