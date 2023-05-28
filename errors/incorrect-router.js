@@ -1,7 +1,7 @@
-const { ERROR_CODE } = require('../utils/constants');
+const { NOT_FOUND_CODE } = require('../utils/constants');
 
 const incorrectRouter = (req, res) => {
-  res.status(ERROR_CODE).send({ message: 'Указанный путь не существует'});
+  res.status(NOT_FOUND_CODE).send({ message: 'Указанный путь не существует' });
 };
 
 module.exports = { incorrectRouter };
