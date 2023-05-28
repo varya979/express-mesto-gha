@@ -2,7 +2,7 @@ const Card = require('../models/card');
 
 const {
   ERROR_CODE,
-    NOT_FOUND_CODE,
+  NOT_FOUND_CODE,
   SERVER_ERROR_CODE,
   SERVER_ERROR_MESSAGE,
 } = require('../utils/constants');
@@ -71,8 +71,8 @@ const likeCard = async (req, res) => {
       res.status(NOT_FOUND_CODE).send({ message: err.message }); // 404
       /* Если передать некорректный _id - до поиска по базе дело не доходит,
       ошибка вылетает на этапе приведения/превращения (casting) текстового
-      представления (которое видим мы) в Mongo.objectId,и тип ошибки
-      будет говорить о неудаче преобразования( Cast Error). */
+      представления (которое видим мы) в Mongo.objectId, и тип ошибки
+      будет говорить о неудаче преобразования (Cast Error). */
     } else if (err.name === 'CastError') {
       const Error = new BadRequestError('Переданы некорректные данные для постановки лайка');
       res.status(ERROR_CODE).send({ message: Error.message }); // 400

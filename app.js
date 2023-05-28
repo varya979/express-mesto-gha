@@ -30,7 +30,4 @@ app.use((req, res, next) => {
 app.use('/', userRouter);
 app.use('/', cardRouter);
 
-app.listen(PORT, () => {
-// Если всё работает, консоль покажет, какой порт приложение слушает
-  console.log('Подключились к 3000 порту');
-});
+app.listen(PORT);
