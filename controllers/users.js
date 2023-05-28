@@ -15,7 +15,7 @@ const getUsers = async (req, res) => {
     const users = await User.find({});
     res.send({ data: users });
   } catch (err) {
-    res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE }); // 500
+    res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
   }
 };
 
@@ -33,6 +33,9 @@ const getUserById = async (req, res) => {
       // и если является (true) - выполняется код:
       res.status(NOT_FOUND_CODE).send({ message: err.message }); // 404
       // если ошибка им не является, выполняется:
+    } else if (err.name === 'CastError') {
+      const Error = new BadRequestError('Передан некорректный id пользователя');
+      res.status(ERROR_CODE).send({ message: Error.message }); // 400
     } else {
       res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE }); // 500
     }
@@ -44,13 +47,13 @@ const createUser = async (req, res) => {
     const { name, about, avatar } = req.body;
     // если не заполнено одно из полей - выбрасываем ошибку оператором throw
     if (!name || !about || !avatar) {
-      throw new BadRequestError('Переданы некорректные данные при создании');
+      throw new BadRequestError();
     }
     const user = await User.create({ name, about, avatar });
     res.send({ data: user });
   } catch (err) {
-    if (err instanceof BadRequestError) {
-      res.status(ERROR_CODE).send({ message: err.message }); // 400
+    if (err instanceof BadRequestError || err.name === 'ValidationError') {
+      res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' }); // 400
     } else {
       res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE }); // 500
     }

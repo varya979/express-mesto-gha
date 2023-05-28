@@ -25,13 +25,13 @@ const createCard = async (req, res) => {
     const { name, link } = req.body;
     // если не заполнено одно из полей - выбрасываем ошибку оператором throw
     if (!name || !link) {
-      throw new BadRequestError('Переданы некорректные данные при создании карточки');
+      throw new BadRequestError();
     }
     const card = await Card.create({ name, link, owner: _id });
     res.send({ data: card });
   } catch (err) {
-    if (err instanceof BadRequestError) {
-      res.status(ERROR_CODE).send({ message: err.message }); // 400
+    if (err instanceof BadRequestError || err.name === 'ValidationError') {
+      res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании карточки' }); // 400
     } else {
       res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE }); // 500
     }
@@ -51,6 +51,11 @@ const deleteCardById = async (req, res) => {
     if (err instanceof NotFoundError) {
       // и если является (true) - выполняется код:
       res.status(NOT_FOUND_CODE).send({ message: err.message }); // 404
+    } else if (err.name === 'CastError') {
+      const Error = new BadRequestError('Переданы некорректные данные при удалении карточки');
+      res.status(ERROR_CODE).send({ message: Error.message }); // 400
+    } else {
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE }); // 500
     }
   }
 };
