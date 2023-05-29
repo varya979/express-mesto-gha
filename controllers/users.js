@@ -5,6 +5,7 @@ const {
   NOT_FOUND_CODE,
   SERVER_ERROR_CODE,
   SERVER_ERROR_MESSAGE,
+  RESOURCE_CREATED,
 } = require('../utils/constants');
 
 const { BadRequestError } = require('../errors/bad-request-error');
@@ -50,7 +51,7 @@ const createUser = async (req, res) => {
       throw new BadRequestError();
     }
     const user = await User.create({ name, about, avatar });
-    res.send({ data: user });
+    res.status(RESOURCE_CREATED).send({ data: user }); // 201
   } catch (err) {
     if (err instanceof BadRequestError || err.name === 'ValidationError') {
       res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' }); // 400
