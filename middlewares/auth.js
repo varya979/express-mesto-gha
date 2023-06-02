@@ -1,22 +1,24 @@
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
-  // тут будет вся авторизация:
-  // достаём авторизационный заголовок "authorization"
-  const { authorization } = req.headers;
+  // // тут будет вся авторизация:
+  // // достаём авторизационный заголовок "authorization"
+  // const { authorization } = req.headers;
 
-  // убеждаемся, что заголовок есть или начинается с Bearer: (Bearer - это схема аутентификации
-  // — она  сообщает серверу, что проверять наличие прав у пользователя нужно по токену)
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    return res
-      .status(401)
-      .send({ message: 'Необходима авторизация' });
-  }
+  // // убеждаемся, что заголовок есть или начинается с Bearer: (Bearer - это схема аутентификации
+  // // — она  сообщает серверу, что проверять наличие прав у пользователя нужно по токену)
+  // if (!authorization || !authorization.startsWith('Bearer ')) {
+  //   return res
+  //     .status(401)
+  //     .send({ message: 'Необходима авторизация' });
+  // }
 
-  // извлечём токен:
-  // вызовем метод replace, чтобы выкинуть из заголовка приставку 'Bearer '
-  // Таким образом, в переменную token запишется только JWT.
-  const token = authorization.replace('Bearer ', '');
+  // // извлечём токен:
+  // // вызовем метод replace, чтобы выкинуть из заголовка приставку 'Bearer '
+  // // Таким образом, в переменную token запишется только JWT.
+  // const token = authorization.replace('Bearer ', '');
+
+  const token = req.cookies.jwt; // достаём токен из кук с помощью куки-парсера в app.js
 
   let payload;
 
@@ -33,5 +35,5 @@ module.exports = (req, res, next) => {
 
   req.user = payload; // записываем пейлоуд в объект запроса
 
-  next(); // пропускаем запрос дальше
+  return next(); // пропускаем запрос дальше
 };

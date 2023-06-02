@@ -13,6 +13,34 @@ const {
 const { BadRequestError } = require('../errors/bad-request-error');
 const { NotFoundError } = require('../errors/not-found-error');
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+    // аутентификация успешна! пользователь в переменной user
+      // Методом sign создаем токен. Методу мы передали три аргумента
+      const token = jwt.sign(
+        { _id: user._id }, // пейлоуд токена (зашифрованный в строку объект пользователя) - id
+        'token-jwt', // секретный ключ подписи
+        { expiresIn: '7d' }, // время, в течение которого токен остаётся действительным
+      );
+      // записываем токен в куки браузера
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7, // срок жизни куки
+        httpOnly: true, // куку нельзя прочесть из JavaScript
+      });
+      // вернём токен
+      res.send({ token });
+    })
+    .catch((err) => {
+    // ошибка аутентификации
+      res
+        .status(401) // неправильные почта и пароль
+        .send({ message: err.message });
+    });
+};
+
 const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
@@ -26,6 +54,30 @@ const getUserById = async (req, res) => {
   try {
     const { userId } = req.params;
     const user = await User.findById(userId)
+      // .orFail - если база возвращает пустой объект, то выполнение кода дальше не выполняется,
+      // а переходит в catch
+      .orFail(new NotFoundError('Пользователь по указанному id не найден'));
+    res.send({ data: user });
+  } catch (err) {
+    // instanceof определяет является ли ошибка экземпляром класса NotFoundError:
+    if (err instanceof NotFoundError) {
+      // и если является (true) - выполняется код:
+      res.status(NOT_FOUND_CODE).send({ message: err.message }); // 404
+      // если ошибка им не является, выполняется:
+    } else if (err.name === 'CastError') {
+      const Error = new BadRequestError('Передан некорректный id пользователя');
+      res.status(ERROR_CODE).send({ message: Error.message }); // 400
+    } else {
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE }); // 500
+    }
+  }
+};
+
+const getMyUsersInfo = async (req, res) => {
+  try {
+    const { _id } = req.user;
+
+    const user = await User.findById(_id)
       // .orFail - если база возвращает пустой объект, то выполнение кода дальше не выполняется,
       // а переходит в catch
       .orFail(new NotFoundError('Пользователь по указанному id не найден'));
@@ -134,58 +186,6 @@ const updateUserAvatar = async (req, res) => {
       res.status(ERROR_CODE).send({ message: err.message }); // 400
     } else if (err instanceof NotFoundError) {
       res.status(NOT_FOUND_CODE).send({ message: err.message }); // 404
-    } else {
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE }); // 500
-    }
-  }
-};
-
-const login = (req, res) => {
-  const { email, password } = req.body;
-
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-    // аутентификация успешна! пользователь в переменной user
-      // Методом sign создаем токен. Методу мы передали три аргумента
-      const token = jwt.sign(
-        { _id: user._id }, // пейлоуд токена (зашифрованный в строку объект пользователя) - id
-        'token-jwt', // секретный ключ подписи
-        { expiresIn: '7d' }, // время, в течение которого токен остаётся действительным
-      );
-      // записываем токен в куки браузера
-      res.cookie('jwt', token, {
-        maxAge: 3600000 * 24 * 7, // срок жизни куки
-        httpOnly: true, // куку нельзя прочесть из JavaScript
-      });
-      // вернём токен
-      res.send({ token });
-    })
-    .catch((err) => {
-    // ошибка аутентификации
-      res
-        .status(401) // неправильные почта и пароль
-        .send({ message: err.message });
-    });
-};
-
-const getMyUsersInfo = async (req, res) => {
-  try {
-    const { _id } = req.user;
-
-    const user = await User.findById(_id)
-      // .orFail - если база возвращает пустой объект, то выполнение кода дальше не выполняется,
-      // а переходит в catch
-      .orFail(new NotFoundError('Пользователь по указанному id не найден'));
-    res.send({ data: user });
-  } catch (err) {
-    // instanceof определяет является ли ошибка экземпляром класса NotFoundError:
-    if (err instanceof NotFoundError) {
-      // и если является (true) - выполняется код:
-      res.status(NOT_FOUND_CODE).send({ message: err.message }); // 404
-      // если ошибка им не является, выполняется:
-    } else if (err.name === 'CastError') {
-      const Error = new BadRequestError('Передан некорректный id пользователя');
-      res.status(ERROR_CODE).send({ message: Error.message }); // 400
     } else {
       res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE }); // 500
     }
