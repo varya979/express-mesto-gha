@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { incorrectRouter } = require('./errors/incorrect-router');
+const { login, createUser } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
 
@@ -22,15 +23,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 Создайте мидлвэр: */
 app.use((req, res, next) => {
   req.user = {
-    _id: '64748238f60d1fc8d9788b57', // вставьте сюда _id созданного в предыдущем пункте пользователя
+    _id: '6479e9da03f346cad51669ac', // вставьте сюда _id созданного в предыдущем пункте пользователя
   };
 
   next();
 });
+
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.use('/', userRouter);
 app.use('/', cardRouter);
 
 app.use('*', incorrectRouter);
 
-app.listen(PORT);
+app.listen(PORT, console.log('сервер работает как нужно'));
