@@ -1,13 +1,12 @@
-// 409
-
-const { CONFLICT_ERROR_CODE } = require('../utils/constants');
+/* 409
+зарегистрировать вторую учетную запись на тот же email - Conflict */
 
 class ConflictError extends Error {
   constructor(message) {
     super(message);
     this.name = 'ConflictError';
-    this.statusCode = CONFLICT_ERROR_CODE;
+    this.statusCode = 409;
   }
 }
 
-module.exports = { ConflictError };
+module.exports = ConflictError;

@@ -1,13 +1,13 @@
-// 400
-
-const { ERROR_CODE } = require('../utils/constants');
+/* 400
+Ошибка на стороне клиента (запрос был неправильно
+сформирован): ValidationError, CastError */
 
 class BadRequestError extends Error {
   constructor(message) {
     super(message);
     this.name = 'BadRequestError';
-    this.statusCode = ERROR_CODE;
+    this.statusCode = 400;
   }
 }
 
-module.exports = { BadRequestError };
+module.exports = BadRequestError;

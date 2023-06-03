@@ -1,13 +1,14 @@
-// 404
-
-const { NOT_FOUND_CODE } = require('../utils/constants');
+/* 404
+Пользователь, карточка по данному корректному ID не найдены
+(поиск пользователя по іd, простановка/снятие лайка, удаление
+карточки, изменение профиля/аватара несуществующего пользователя) */
 
 class NotFoundError extends Error {
   constructor(message) {
     super(message);
     this.name = 'NotFoundError';
-    this.statusCode = NOT_FOUND_CODE;
+    this.statusCode = 404;
   }
 }
 
-module.exports = { NotFoundError };
+module.exports = NotFoundError;
