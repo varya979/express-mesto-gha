@@ -36,6 +36,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      select: false, // по умолчанию хеш пароля пользователя не будет возвращаться из базы
     },
   },
   { versionKey: false }, /* чтобы убрать поле __v (версию документа)
@@ -47,7 +48,8 @@ const userSchema = new mongoose.Schema(
 // у него будет два параметра — почта и пароль
 userSchema.statics.findUserByCredentials = function (email, password) {
   // попытаемся найти пользователя по почте
-  return this.findOne({ email }) // this — это модель User
+  return this.findOne({ email }).select('+password')
+  // this — это модель User
     .then((user) => {
       // не нашёлся — отклоняем промис
       if (!user) {

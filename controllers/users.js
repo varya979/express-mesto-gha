@@ -54,8 +54,7 @@ const getUserById = async (req, res) => {
   try {
     const { userId } = req.params;
     const user = await User.findById(userId)
-      // .orFail - если база возвращает пустой объект, то выполнение кода дальше не выполняется,
-      // а переходит в catch
+    // если база возвращает пустой объект, то код дальше не выполняется, а переходит в catch
       .orFail(new NotFoundError('Пользователь по указанному id не найден'));
     res.send({ data: user });
   } catch (err) {
@@ -78,8 +77,6 @@ const getMyUsersInfo = async (req, res) => {
     const { _id } = req.user;
 
     const user = await User.findById(_id)
-      // .orFail - если база возвращает пустой объект, то выполнение кода дальше не выполняется,
-      // а переходит в catch
       .orFail(new NotFoundError('Пользователь по указанному id не найден'));
     res.send({ data: user });
   } catch (err) {

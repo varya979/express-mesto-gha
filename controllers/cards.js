@@ -6,6 +6,7 @@ const {
   SERVER_ERROR_CODE,
   SERVER_ERROR_MESSAGE,
   RESOURCE_CREATED,
+  UNAUTHORIZED_ERROR_CODE,
 } = require('../utils/constants');
 
 const { BadRequestError } = require('../errors/bad-request-error');
@@ -14,7 +15,7 @@ const { NotFoundError } = require('../errors/not-found-error');
 const getCards = async (req, res) => {
   try {
     const cards = await Card.find({});
-    res.send({ data: cards });
+    res.send(cards);
   } catch (err) {
     res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE }); // 500
   }
@@ -29,7 +30,7 @@ const createCard = async (req, res) => {
       throw new BadRequestError();
     }
     const card = await Card.create({ name, link, owner: _id });
-    res.status(RESOURCE_CREATED).send({ data: card }); // 201
+    res.status(RESOURCE_CREATED).send(card); // 201
   } catch (err) {
     if (err instanceof BadRequestError || err.name === 'ValidationError') {
       res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании карточки' }); // 400
@@ -39,26 +40,31 @@ const createCard = async (req, res) => {
   }
 };
 
-const deleteCardById = async (req, res) => {
-  try {
-    const { cardId } = req.params;
-    const card = await Card.findByIdAndRemove(cardId)
-      // .orFail - если база возвращает пустой объект, то выполнение кода дальше не выполняется,
-      // а переходит в catch
-      .orFail(new NotFoundError('Карточка с указанным id не найдена.'));
-    res.send({ data: card });
-  } catch (err) {
+const deleteCardById = (req, res) => {
+  Card.findById(req.params.cardId)
+    // если база возвращает пустой объект, то код дальше не выполняется, а переходит в catch
+    .orFail(new NotFoundError())
+    .then((card) => {
+      // если поле id пользователя совпадает с полем владельца карточки - карточку удаляем
+      if (String(req.user._id) === String(card.owner)) {
+        Card.findByIdAndRemove(req.params.cardId)
+          .then((deletedCard) => res.send(deletedCard));
+      } else {
+        res.status(UNAUTHORIZED_ERROR_CODE).send({ message: 'Нет пользовательских прав на удаление' }); // 401
+      }
+    })
+    .catch((err) => {
     // instanceof определяет является ли ошибка экземпляром класса NotFoundError:
-    if (err instanceof NotFoundError) {
+      if (err instanceof NotFoundError) {
       // и если является (true) - выполняется код:
-      res.status(NOT_FOUND_CODE).send({ message: err.message }); // 404
-    } else if (err.name === 'CastError') {
-      const Error = new BadRequestError('Переданы некорректные данные при удалении карточки');
-      res.status(ERROR_CODE).send({ message: Error.message }); // 400
-    } else {
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE }); // 500
-    }
-  }
+        res.status(NOT_FOUND_CODE).send({ message: err.message }); // 404
+      } else if (err.name === 'CastError') {
+        const Error = new BadRequestError('Переданы некорректные данные при удалении карточки');
+        res.status(ERROR_CODE).send({ message: Error.message }); // 400
+      } else {
+        res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE }); // 500
+      }
+    });
 };
 
 const likeCard = async (req, res) => {
