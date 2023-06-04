@@ -6,7 +6,6 @@ const { regex } = require('../middlewares/celebrate-validation');
 
 const userSchema = new mongoose.Schema(
   {
-
     name: {
       type: String,
       minlength: 2,
