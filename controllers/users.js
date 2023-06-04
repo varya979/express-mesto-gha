@@ -6,6 +6,29 @@ const BadRequestError = require('../errors/bad-request-error');
 const NotFoundError = require('../errors/not-found-error');
 const ConflictError = require('../errors/conflict-error');
 
+const createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash, // записываем хэш в базу
+    }))
+    .then((user) => res.status(201).send({ // 201
+      name, about, avatar, email, _id: user._id,
+    }))
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError('Такой пользователь уже существует')); // 409
+      } else if (err.name === 'ValidationError') {
+        next(new BadRequestError('Передан некорректные данные пользователя')); // 400
+      } else {
+        next(err); // 500
+      }
+    });
+};
+
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
@@ -71,37 +94,10 @@ const getMyUsersInfo = async (req, res, next) => {
   }
 };
 
-const createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
-
-  bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name, about, avatar, email, password: hash, // записываем хэш в базу
-    }))
-    .then((user) => res.status(201).send({ // 201
-      name, about, avatar, email, _id: user._id,
-    }))
-    .catch((err) => {
-      if (err.code === 11000) {
-        next(new ConflictError('Такой пользователь уже существует')); // 409
-      } else if (err.name === 'ValidationError') {
-        next(new BadRequestError('Передан некорректные данные пользователя')); // 400
-      } else {
-        next(err); // 500
-      }
-    });
-};
-
 const updateUserProfile = async (req, res, next) => {
   try {
     const { _id } = req.user;
     const { name, about } = req.body;
-    // если не заполнено одно из полей - выбрасываем ошибку оператором throw
-    if (!name || !about) {
-      throw new BadRequestError('Переданы некорректные данные при обновлении профиля'); // 400
-    }
     const user = await User.findByIdAndUpdate(
       _id,
       { name, about },
@@ -110,7 +106,11 @@ const updateUserProfile = async (req, res, next) => {
       .orFail(new NotFoundError('Пользователь c указанным id не найден')); // 404
     res.send(user);
   } catch (err) {
-    next(err); // 500
+    if (err.name === 'ValidationError') {
+      next(new BadRequestError('Переданы некорректные данные при обновлении профиля')); // 400
+    } else {
+      next(err); // 500
+    }
   }
 };
 
@@ -118,9 +118,7 @@ const updateUserAvatar = async (req, res, next) => {
   try {
     const { _id } = req.user;
     const { avatar } = req.body;
-    if (!avatar) {
-      throw new BadRequestError('Переданы некорректные данные при обновлении аватара'); // 400
-    }
+
     const user = await User.findByIdAndUpdate(
       _id,
       { avatar },
@@ -129,7 +127,11 @@ const updateUserAvatar = async (req, res, next) => {
       .orFail(new NotFoundError('Пользователь c указанным id не найден')); // 404
     res.send(user);
   } catch (err) {
-    next(err); // 500
+    if (err.name === 'ValidationError') {
+      next(new BadRequestError('Переданы некорректные данные при обновлении аватара')); // 400
+    } else {
+      next(err); // 500
+    }
   }
 };
 

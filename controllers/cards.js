@@ -17,14 +17,15 @@ const createCard = async (req, res, next) => {
   try {
     const { _id } = req.user;
     const { name, link } = req.body;
-    // если не заполнено одно из полей - выбрасываем ошибку оператором throw
-    if (!name || !link) {
-      throw new BadRequestError('Переданы некорректные данные при создании карточки'); // 400
-    }
+
     const card = await Card.create({ name, link, owner: _id });
     res.status(201).send(card); // 201
   } catch (err) {
-    next(err); // 500
+    if (err.name === 'ValidationError') {
+      next(new BadRequestError('Переданы некорректные данные при создании карточки')); // 400
+    } else {
+      next(err); // 500
+    }
   }
 };
 

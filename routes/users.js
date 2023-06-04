@@ -1,6 +1,5 @@
 const userRouter = require('express').Router();
 const {
-  // createUser,
   getUsers,
   getUserById,
   updateUserProfile,
@@ -8,11 +7,16 @@ const {
   getMyUsersInfo,
 } = require('../controllers/users');
 
+const {
+  userIdValidation,
+  updateUserProfileValidation,
+  updateUserAvatarValidation,
+} = require('../middlewares/celebrate-validation');
+
 userRouter.get('/users', getUsers);
-userRouter.get('/users/me', getMyUsersInfo); // ставить строго до роута /users/:userId - иначе 400
-userRouter.get('/users/:userId', getUserById);
-// userRouter.post('/users', createUser);
-userRouter.patch('/users/me', updateUserProfile);
-userRouter.patch('/users/me/avatar', updateUserAvatar);
+userRouter.get('/users/me', getMyUsersInfo); // ставить строго до роута /users/:userId - иначе падает 400
+userRouter.get('/users/:userId', userIdValidation, getUserById);
+userRouter.patch('/users/me', updateUserProfileValidation, updateUserProfile);
+userRouter.patch('/users/me/avatar', updateUserAvatarValidation, updateUserAvatar);
 
 module.exports = userRouter;
