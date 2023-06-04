@@ -19,7 +19,7 @@ const createCard = async (req, res, next) => {
     const { name, link } = req.body;
 
     const card = await Card.create({ name, link, owner: _id });
-    res.status(201).send(card); // 201
+    res.statusCode(201).send(card); // 201
   } catch (err) {
     if (err.name === 'ValidationError') {
       next(new BadRequestError('Переданы некорректные данные при создании карточки')); // 400
