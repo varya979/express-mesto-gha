@@ -64,8 +64,8 @@ const getUsers = async (req, res, next) => {
 
 const getUserById = async (req, res, next) => {
   try {
-    // const { userId } = req.params;
-    const user = await User.findById(req.params.userId)
+    const { userId } = req.params;
+    const user = await User.findById(userId)
     // если база возвращает пустой объект, то код дальше не выполняется, а переходит в catch
       .orFail(new NotFoundError('Пользователь по указанному id не найден')); // 404
     res.send(user);
