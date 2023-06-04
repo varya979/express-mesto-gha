@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       minlength: 2,
       maxlength: 30,
-      default: 'Жак-Ив-Кусто', // Mongoose only applies a default if the value of the path is strictly undefined
+      default: 'Жак-Ив Кусто', // Mongoose only applies a default if the value of the path is strictly undefined
     },
     about: {
       type: String,
