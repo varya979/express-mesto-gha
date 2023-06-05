@@ -37,7 +37,8 @@ const deleteCardById = (req, res, next) => {
       // если поле id пользователя совпадает с полем владельца карточки - карточку удаляем
       if (String(req.user._id) === String(card.owner)) {
         Card.findByIdAndRemove(req.params.cardId)
-          .then((deletedCard) => res.send(deletedCard));
+          .then((deletedCard) => res.send(deletedCard))
+          .catch(next);
       } else {
         throw new ForbiddenError('Нет пользовательских прав на удаление карточки'); // 403
       }
